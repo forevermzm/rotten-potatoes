@@ -18,11 +18,12 @@ class MoviesController < ApplicationController
         end
         @movies = Movie.all
       end
-	elsif params.include?:ratings
-		if params.include?:sort
-			@movies = Movie.find(:all , :conditions => {:rating => params[:ratings].keys}, :order => params[:sort])
+	elsif params.include?:sort
+		session[:sort] = params[:sort]
+		if session.include?:ratings
+			@movies = Movie.find(:all , :conditions => {:rating => session[:ratings].keys}, :order => params[:sort])
 		else
-			@movies = Movie.find(:all , :conditions => {:rating => params[:ratings].keys})
+			@movies = Movie.find(:all , :order => params[:sort])
 		end
 	else
   		if session.include?:sort
