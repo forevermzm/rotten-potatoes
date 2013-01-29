@@ -8,16 +8,31 @@ class MoviesController < ApplicationController
 
   def index
   	@all_ratings = Movie.all_ratings
-	if params.include?:ratings
+    if params.include?(:commit)
+      if params.include?(:ratings)
+        session[:ratings]=params[:ratings]
+        @movies = Movie.find(:all, :conditions => { :rating => params[:ratings].keys})
+      else
+        if session.include?(:ratings)
+          session.delete(:ratings)
+        end
+        @movies = Movie.all
+      end
+	elsif params.include?:ratings
 		if params.include?:sort
 			@movies = Movie.find(:all , :conditions => {:rating => params[:ratings].keys}, :order => params[:sort])
 		else
 			@movies = Movie.find(:all , :conditions => {:rating => params[:ratings].keys})
 		end
-	else 
-		@movies = Movie.all
-	end
-  	
+	else
+  		if session.include?:sort
+  			redirect_to :action => 'index', :sort => session[:sort]
+  		elsif session.include?(:ratings)
+        	redirect_to :action => 'index', :commit =>'Refresh', :ratings => session[:ratings]
+		else
+			@movies = Movie.all
+		end
+	end  	
   end
 
   def new
